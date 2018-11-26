@@ -18,8 +18,18 @@ namespace ProxyTester
                 url = args[0];
             }
 
-            var proxy = WebRequest.DefaultWebProxy;
-            Console.WriteLine("Used Proxy: " + proxy?.GetProxy(new Uri(url))?.ToString() ?? "null");
+            // disable SSL validation
+            ServicePointManager.ServerCertificateValidationCallback +=
+                (sender, cert, chain, sslPolicyErrors) => true;
+
+            var defaultProxy = WebRequest.DefaultWebProxy;
+            string usedProxy = defaultProxy?.GetProxy(new Uri(url))?.ToString();
+            if (usedProxy == url)
+            {
+                usedProxy = null;
+            }
+
+            Console.WriteLine("Used Proxy: " + (usedProxy ?? "null"));
             Console.WriteLine("-----");
 
             FetchAsync(url).Wait();
